@@ -58,7 +58,7 @@ class MotionDetect(object):
         super(MotionDetect, self).__init__()
 
         self.shape = shape
-        self.avg_map = np.zeros((self.shape[0], self.shape[1]), dtype='float')
+        self.avg_map = np.zeros((self.shape[0], self.shape[1], self.shape[2]), dtype='float')
         self.alpha = 0.8 # you can ajust your value
         self.threshold = 40 # you can ajust your value
 
@@ -68,14 +68,18 @@ class MotionDetect(object):
         assert img.shape == self.shape, "Input image shape must be {}, but get {}".format(self.shape, img.shape)
 
         # Extract motion part (hint: motion part mask = difference between image and avg > threshold)
-        # TODO
+        motion = img - self.avg_map
 
         # Mask out unmotion part (hint: set the unmotion part to 0 with mask)
-        # TODO
-
+        motion_map = np.zeros((img.shape[0], img.shape[1], img.shape[2]), np.uint8)
+        for i in range(0, img.shape[0]):
+            for j in range(0, img.shape[1]):
+                if np.sum(np.absolute(motion[i, j])) < self.threshold:
+                    motion_map[i, j] = np.array([0, 0, 0])
+                else:
+                    motion_map[i, j] = img[i, j]
         # Update avg_map
-        # TODO
-
+        self.avg_map = self.avg_map * self.alpha + img * (1 -self.alpha)
         return motion_map
 
 
@@ -161,9 +165,8 @@ def videoRW():
 
 
 def main():
-    #split()
+    split()
     interpolation()
-    sys.exit(0)
     videoRW()
 
 

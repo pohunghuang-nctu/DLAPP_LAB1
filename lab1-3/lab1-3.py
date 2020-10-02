@@ -78,7 +78,7 @@ def sharpen():
 
 
 def main():
-    # denoise()
+    denoise()
     sharpen()
 
 

@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import math
+from simple_term_menu import TerminalMenu
 
 
 def gammaCorrection(img, gamma=1.0):
@@ -92,8 +93,12 @@ def histogram_equalization():
 
 
 def main():
-    gamma_correction()
-    histogram_equalization()
+    terminal_menu = TerminalMenu(["Gamma Correction", "Histogram Equalization"])
+    menu_entry_index = terminal_menu.show()
+    if menu_entry_index == 0:
+        gamma_correction()
+    elif menu_entry_index == 1:
+        histogram_equalization()
 
 
 if __name__ == '__main__':

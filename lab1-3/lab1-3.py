@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from simple_term_menu import TerminalMenu
 
 def avgFilter(img):
     img_avg = np.zeros(img.shape, np.uint8)
@@ -36,10 +37,13 @@ def midFilter(img):
 
 
 def edgeSharpen(img):
-    denoise_img = midFilter(img)
+    avg_kernel = np.ones([3, 3], np.float64) / 9
+    denoise_img = cv2.filter2D(img, ddepth=-1, dst=-1, kernel=avg_kernel)
     kernel = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
     img_edge = cv2.filter2D(denoise_img, ddepth=-1, dst=-1, kernel=kernel)
-    img_s = denoise_img - img_edge
+    img_s = np.subtract(denoise_img, img_edge, dtype=np.int16)
+    img_s[img_s < 0] = 0
+    img_s = img_s.astype('uint8')
     return img_edge, img_s
     # return img_edge
 
@@ -72,14 +76,17 @@ def sharpen():
     img = cv2.imread(name, 0)
 
     img_edge, img_s = edgeSharpen(img)
-    # img_edge = edgeSharpen(img)
     cv2.imwrite('mj_edge.png', img_edge)
     cv2.imwrite('mj_sharpen.png', img_s)
 
 
 def main():
-    denoise()
-    sharpen()
+    terminal_menu = TerminalMenu(["Denoise", "Sharpen"])
+    menu_entry_index = terminal_menu.show()
+    if menu_entry_index == 0:
+        denoise()
+    elif menu_entry_index == 1:
+        sharpen()
 
 
 if __name__ == '__main__':

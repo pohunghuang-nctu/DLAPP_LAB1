@@ -1,6 +1,8 @@
+#!/root/miniconda3/envs/lab1/bin/python
 import cv2
 import numpy as np
 import sys
+from simple_term_menu import TerminalMenu
 
 
 def splitRGB(img):
@@ -59,8 +61,8 @@ class MotionDetect(object):
 
         self.shape = shape
         self.avg_map = np.zeros((self.shape[0], self.shape[1], self.shape[2]), dtype='float')
-        self.alpha = 0.8 # you can ajust your value
-        self.threshold = 40 # you can ajust your value
+        self.alpha = 0.75 # you can ajust your value
+        self.threshold = 25 # you can ajust your value
 
         print("MotionDetect init with shape {}".format(self.shape))
 
@@ -69,15 +71,15 @@ class MotionDetect(object):
 
         # Extract motion part (hint: motion part mask = difference between image and avg > threshold)
         motion = img - self.avg_map
-
+        motion_map = np.where(motion < self.threshold, 0, img)
         # Mask out unmotion part (hint: set the unmotion part to 0 with mask)
-        motion_map = np.zeros((img.shape[0], img.shape[1], img.shape[2]), np.uint8)
-        for i in range(0, img.shape[0]):
-            for j in range(0, img.shape[1]):
-                if np.sum(np.absolute(motion[i, j])) < self.threshold:
-                    motion_map[i, j] = np.array([0, 0, 0])
-                else:
-                    motion_map[i, j] = img[i, j]
+        # motion_map = np.zeros((img.shape[0], img.shape[1], img.shape[2]), np.uint8)
+        # for i in range(0, img.shape[0]):
+        #     for j in range(0, img.shape[1]):
+        #         if np.sum(np.absolute(motion[i, j])) < self.threshold:
+        #             motion_map[i, j] = np.array([0, 0, 0])
+        #         else:
+        #            motion_map[i, j] = img[i, j]
         # Update avg_map
         self.avg_map = self.avg_map * self.alpha + img * (1 -self.alpha)
         return motion_map
@@ -147,15 +149,20 @@ def videoRW():
     mt = MotionDetect(shape=(h,w,3))
 
     # Read video frame by frame
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    count = 0
     while True:
         # Get 1 frame
         success, frame = cap.read()
 
         if success:
             motion_map = mt.getMotion(frame)
-
             # Write 1 frame to output video
             out.write(motion_map)
+            count += 1
+            percent = int(count * 100)/total_frames
+            if count % 5 == 0:
+                print('Processed %d %%' % percent)
         else:
             break
 
@@ -165,9 +172,14 @@ def videoRW():
 
 
 def main():
-    split()
-    interpolation()
-    videoRW()
+    terminal_menu = TerminalMenu(["Split Channels", "Interpolation", "Video R/W"])
+    menu_entry_index = terminal_menu.show()
+    if menu_entry_index == 0:
+        split()
+    elif menu_entry_index == 1:
+        interpolation()
+    elif menu_entry_index == 2:
+        videoRW()
 
 
 if __name__ == '__main__':

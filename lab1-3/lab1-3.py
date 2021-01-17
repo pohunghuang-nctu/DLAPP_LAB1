@@ -58,9 +58,13 @@ def denoise():
     noise_gau = cv2.imread(name2, 0)
 
     img_imp_avg = avgFilter(noise_imp)
+    print('img_imp_avg')
     img_imp_mid = midFilter(noise_imp)
+    print('img_imp_mid')
     img_gau_avg = avgFilter(noise_gau)
+    print('img_gau_avg')
     img_gau_mid = midFilter(noise_gau)
+    print('img_gau_mid')
 
     cv2.imwrite('img_imp_avg.png', img_imp_avg)
     cv2.imwrite('img_imp_mid.png', img_imp_mid)
